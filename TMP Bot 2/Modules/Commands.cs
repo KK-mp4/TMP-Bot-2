@@ -27,7 +27,6 @@
         {
             await this.Context.Channel.TriggerTypingAsync();
 
-
             var embed = new EmbedBuilder()
                 .WithTitle("TMP Bot 2 Help")
                 .WithColor(new Color(255, 102, 94))
@@ -50,12 +49,16 @@
             string message = this.Context.Message.Content;
             string[] words = message.Split(' ');
 
-            await this.ReplyAsync($"Url: `{words[2]}`");
-            if (words.Length > 2)
-            {
-                await this.ReplyAsync($"Comment: `{words[3]}`");
-            }
+            //await this.ReplyAsync($"Url: `{words[2]}`");
+            //if (words.Length > 2)
+            //{
+            //    await this.ReplyAsync($"Comment: `{words[3]}`");
+            //}
 
+            string name = await Parse.NameAsync(words[2]);
+            //string date = await Parse.DateAsync(words[2]);
+            await this.ReplyAsync($"**Added video:** {name}");
+            //await this.ReplyAsync($"Date: `{date}`");
         }
 
         [Command("list")]
