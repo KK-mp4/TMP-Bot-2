@@ -117,6 +117,8 @@
                     await Context.Channel.SendFileAsync(@$"..\..\..\Thumbnails\{filename}.jpg", $"————————————————————————\n**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n{videos[i].comment}\n<{videos[i].url}>");
                 }
             }
+            else
+                await this.ReplyAsync("List is empty");
         }
 
 
@@ -126,7 +128,7 @@
             List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
 
             if (videos != null)
-            { 
+            {
                 using (StreamWriter writer = new StreamWriter(@"..\..\..\TMP_List.txt"))
                 {
                     for (int i = 0; i < videos.Count; i++)
@@ -134,6 +136,8 @@
                 }
                 await Context.Channel.SendFileAsync(@$"..\..\..\TMP_List.txt", "**Generated pastebin:**");
             }
+            else
+                await this.ReplyAsync("List is empty");
         }
 
 
@@ -156,6 +160,8 @@
                     await this.ReplyAsync($"**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n<{videos[i].url}>");
                 }
             }
+            else
+                await this.ReplyAsync("List is empty");
         }
 
 
@@ -175,11 +181,30 @@
                 "**list** Outputs full video list\n" +
                 "**list compact** Outputs full video data in compact way\n" +
                 "**pastebin** Generates pastebin for TMP description\n" +
-                "**ping** Checks if bot is online")
+                "**ping** Checks if bot is online\n" +
+                "**clear** Clears list (only owner can)")
                 .WithFooter("Developed by KK")
                 .WithUrl("https://github.com/KK-mp4/TMP-Bot-2")
                 .Build();
             await this.ReplyAsync(embed: embed);
+        }
+
+
+        [Command("clear"), RequireOwner, Summary("Clears TMP_List.json")]
+        public async Task ClearAsync()
+        {
+            using (StreamWriter writer = new StreamWriter(@"..\..\..\TMP_List.json"))
+            {
+                writer.WriteLine("");
+            }
+            await this.ReplyAsync("TMP List have been cleared.");
+        }
+
+
+        [Command("thumbnail"), RequireOwner, Summary("Generates thumbnail for the episode")]
+        public async Task ThumbnailAsync()
+        {
+            await this.ReplyAsync("Thumbnail for episode: **16**");
         }
     }
 }
