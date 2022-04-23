@@ -2,18 +2,38 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
     using Discord;
     using Discord.Commands;
     using Discord.WebSocket;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// General module containing commands.
     /// </summary>
     public class Commands : ModuleBase<SocketCommandContext>
     {
+        public class Video
+        {
+            public string url { get; set; }
+            public string channel_name { get; set; }
+            public string video_title { get; set; }
+            public string upload_date { get; set; }
+            public string? comment { get; set; }
+
+            public Video(string url, string channel_name, string video_title, string upload_date, string comment = null)
+            {
+                this.url = url;
+                this.channel_name = channel_name;
+                this.video_title = video_title;
+                this.upload_date = upload_date;
+                this.comment = comment;
+            }
+        }
+
         [Command("ping"), Alias("p", "test"), Summary("Checks if bot is online")]
         public async Task PingAsync()
         {
@@ -29,26 +49,63 @@
 
             string message = this.Context.Message.Content;
             string[] words = message.Split(' ');
+            words[2] = words[2].Replace("<", string.Empty);
+            words[2] = words[2].Replace(">", string.Empty);
+            words[2] = words[2].Replace("https://www.bilibili.com/video", "https://b23.tv");
+            int queryPos = words[2].IndexOf('?');
+            if (queryPos >= 0)
+            {
+                words[2] = words[2].Remove(queryPos, words[2].Length - queryPos);
+            }
 
             string username = await Parse.UserAsync(words[2]);
             string title = await Parse.TitleAsync(words[2]);
             string date = await Parse.DateAsync(words[2]);
 
-            //await this.ReplyAsync($"Url: `{words[2]}`");
-            //if (words.Length > 2)
-            //{
-            //    await this.ReplyAsync($"Comment: `{words[3]}`");
-            //}
+            await this.ReplyAsync($"**Added video:** {title}\t|\t{username} ({date})");
 
-            //string date = await Parse.DateAsync(words[2]);
-            await this.ReplyAsync($"**Added video:** {title} | {username}\n**Uploaded on a date:** {date}");
+            string path = @"..\..\..\TMP_List.json";
+            if (File.Exists(path))
+            {
+                List<Video> vidList = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(path));
+                if (vidList == null)
+                {
+                    vidList = new List<Video>();
+                }
+
+                Video newVid = new Video(words[2], username, title, date);
+                if (words.Length > 3)
+                {
+                    string comment = words[3];
+                    for (int i = 4; i < words.Length; i++)
+                    {
+                        comment += " " + words[i];
+                    }
+                    newVid.comment = comment;
+                }
+                vidList.Add(newVid);
+
+                vidList.Sort((x, y) => x.upload_date.CompareTo(y.upload_date));
+
+                File.WriteAllText(path, JsonConvert.SerializeObject(vidList, Formatting.Indented));
+            }
         }
 
 
         [Command("list"), Alias("array", "out"), Summary("Outputs full video list")]
         public async Task ListAsync()
         {
-            await this.ReplyAsync("Video list...\n**[Not implemented]**");
+            List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
+
+            if (videos != null)
+            {
+                await this.ReplyAsync("**Videos:**\n");
+                for (int i = 0; i < videos.Count; i++)
+                {
+                    string thumbnail = await Parse.ThumbnailAsync(videos[i].url);
+                    await this.ReplyAsync($"————————————————————————\n**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n{videos[i].comment}\n<{videos[i].url}>\n{thumbnail}");
+                }
+            }
         }
 
 
@@ -69,7 +126,15 @@
         [Command("list compact"), Summary("Outputs full video data in compact way")]
         public async Task ListCompactAsync()
         {
-            await this.ReplyAsync("Compact video list...\n**[Not implemented]**");
+            List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
+
+            if (videos != null)
+            {
+                for (int i = 0; i < videos.Count; i++)
+                {
+                    await this.ReplyAsync($"**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n<{videos[i].url}>");
+                }
+            }
         }
 
 
