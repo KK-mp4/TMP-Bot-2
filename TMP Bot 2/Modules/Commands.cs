@@ -122,7 +122,7 @@
         }
 
 
-        [Command("pastebin"), Summary("Generates pastebin for TMP description")]
+        [Command("pastebin"), Alias("txt", ".txt", "description"), Summary("Generates pastebin for TMP description")]
         public async Task PastebinAsync()
         {
             List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
@@ -175,14 +175,17 @@
                 .WithColor(new Discord.Color(255, 102, 94))
                 .AddField("Prefix: ", "!!tmp")
                 .AddField("Commands", "\n" +
-                "**add** Adds new video to the list\n" +
-                "**data** Outputs full video data\n" +
-                "**help** Displays all commands\n" +
-                "**list** Outputs full video list\n" +
-                "**list compact** Outputs full video data in compact way\n" +
-                "**pastebin** Generates pastebin for TMP description\n" +
-                "**ping** Checks if bot is online\n" +
-                "**clear** Clears list (only owner can)")
+                "**add**\t Adds new video to the list\n" +
+                "**clear**\t Clears list (only owner can)\n" +
+                "**data**\t Outputs full video data\n" +
+                "**help**\t Displays all commands\n" +
+                "**list**\t Outputs full video list\n" +
+                "**list compact**\t Outputs full video data in compact way\n" +
+                "**list count**\t Counts amount of stored videos\n" +
+                "**pastebin**\t Generates pastebin for TMP description\n" +
+                "**ping**\t Checks if bot is online\n" +
+                "**remove**\t Removes video from the list\n" +
+                "**thumbnail**\t Generates thumbnail for the episode")
                 .WithFooter("Developed by KK")
                 .WithUrl("https://github.com/KK-mp4/TMP-Bot-2")
                 .Build();
@@ -205,6 +208,58 @@
         public async Task ThumbnailAsync()
         {
             await this.ReplyAsync("Thumbnail for episode: **16**");
+        }
+
+
+        [Command("remove", true), Alias("delete", "-"), Summary("Removes video from the list")]
+        public async Task RemoveAsync()
+        {
+            //cleaning url
+            string message = this.Context.Message.Content;
+            string[] words = message.Split(' ');
+            words[2] = words[2].Replace("<", string.Empty);
+            words[2] = words[2].Replace(">", string.Empty);
+            words[2] = words[2].Replace("https://www.bilibili.com/video", "https://b23.tv");
+            int queryPos = words[2].IndexOf('?');
+            if (queryPos >= 0)
+            {
+                words[2] = words[2].Remove(queryPos, words[2].Length - queryPos);
+            }
+
+            string path = @"..\..\..\TMP_List.json";
+            if (File.Exists(path))
+            {
+                List<Video> vidList = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(path));
+
+                if (vidList == null) return;
+
+                for (int i = 0; i < vidList.Count; i++)
+                {
+                    if (words[2] == vidList[i].url)
+                    {
+                        vidList.RemoveAt(i);
+                        await this.ReplyAsync($"Video with URL: **{words[2]}** got removed");
+                        File.WriteAllText(path, JsonConvert.SerializeObject(vidList, Formatting.Indented));
+                        return;
+                    }
+                }
+                await this.ReplyAsync($"No video was removed");
+            }
+        }
+
+
+        [Command("list count", true), RequireOwner, Summary("Counts amount of stored videos")]
+        public async Task CountAsync()
+        {
+            string path = @"..\..\..\TMP_List.json";
+            if (File.Exists(path))
+            {
+                List<Video> vidList = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(path));
+
+                if (vidList == null) return;
+
+                await this.ReplyAsync($"The list currently has **{vidList.Count}** videos stored");
+            }
         }
     }
 }

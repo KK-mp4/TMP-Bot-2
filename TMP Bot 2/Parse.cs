@@ -31,8 +31,9 @@
 
             try
             {
-                string date = document.QuerySelector(".video-data").Text();
+                var date2 = document.QuerySelector(".video-data");
 
+                string date = date2.Text();
                 date = date.Remove(0, date.Length - 19);
                 date = date.Remove(date.Length - 9, 9);
 
@@ -52,8 +53,9 @@
 
             try
             {
-                var username = document.QuerySelector(".username").Text().Trim();
-                return username;
+                var username = document.QuerySelector(".username");
+                string usernamestring = username.Text().Trim();
+                return usernamestring;
             }
             catch
             {
