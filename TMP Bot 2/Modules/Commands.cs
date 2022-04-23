@@ -13,39 +13,21 @@
     /// </summary>
     public class Commands : ModuleBase<SocketCommandContext>
     {
-        public class Video
-        {
-            public string url { get; set; }
-            public string channel_name { get; set; }
-            public string video_title { get; set; }
-            public string upload_date { get; set; }
-            public string? comment { get; set; }
-
-            public Video(string url, string channel_name, string video_title, string upload_date, string comment = null)
-            {
-                this.url = url;
-                this.channel_name = channel_name;
-                this.video_title = video_title;
-                this.upload_date = upload_date;
-                this.comment = comment;
-            }
-        }
-
         [Command("ping"), Alias("p", "test"), Summary("Checks if bot is online")]
         public async Task PingAsync()
         {
-            await this.Context.Channel.TriggerTypingAsync();
-            await this.ReplyAsync("Pong!");
+            await Context.Channel.TriggerTypingAsync();
+            await ReplyAsync("Pong!");
         }
 
 
         [Command("add", true), Alias("+", "new"), Summary("Adds new video to the list")]
         public async Task AddAsync()
         {
-            await this.Context.Channel.TriggerTypingAsync();
+            await Context.Channel.TriggerTypingAsync();
 
             //cleaning url
-            string message = this.Context.Message.Content;
+            string message = Context.Message.Content;
             string[] words = message.Split(' ');
             words[2] = words[2].Replace("<", string.Empty);
             words[2] = words[2].Replace(">", string.Empty);
@@ -60,7 +42,7 @@
             string title = await Parse.TitleAsync(words[2]);
             string date = await Parse.DateAsync(words[2]);
 
-            await this.ReplyAsync($"**Added video:** {title}\t|\t{username} ({date})");
+            await ReplyAsync($"**Added video:** {title}\t|\t{username} ({date})");
 
             //downloading thumbnail
             string thumbnail = await Parse.ThumbnailAsync(words[2]);
@@ -92,11 +74,13 @@
                     {
                         comment += " " + words[i];
                     }
-                    newVid.comment = comment;
+
+                    newVid.Comment = comment;
                 }
+
                 vidList.Add(newVid);
 
-                vidList.Sort((x, y) => x.upload_date.CompareTo(y.upload_date));
+                vidList.Sort((x, y) => x.Upload_date.CompareTo(y.Upload_date));
 
                 File.WriteAllText(path, JsonConvert.SerializeObject(vidList, Formatting.Indented));
             }
@@ -110,15 +94,17 @@
 
             if (videos != null)
             {
-                await this.ReplyAsync("**Videos:**\n");
+                await ReplyAsync("**Videos:**\n");
                 for (int i = 0; i < videos.Count; i++)
                 {
-                    string filename = videos[i].url.Replace("https://b23.tv/", string.Empty);
-                    await Context.Channel.SendFileAsync(@$"..\..\..\Thumbnails\{filename}.jpg", $"————————————————————————\n**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n{videos[i].comment}\n<{videos[i].url}>");
+                    string filename = videos[i].Url.Replace("https://b23.tv/", string.Empty);
+                    await Context.Channel.SendFileAsync(@$"..\..\..\Thumbnails\{filename}.jpg", $"————————————————————————\n**{i + 1}:**\t{videos[i].Video_title}\t |\t {videos[i].Channel_name} ({videos[i].Upload_date})\n{videos[i].Comment}\n<{videos[i].Url}>");
                 }
             }
             else
-                await this.ReplyAsync("List is empty");
+            {
+                await ReplyAsync("List is empty");
+            }
         }
 
 
@@ -132,12 +118,17 @@
                 using (StreamWriter writer = new StreamWriter(@"..\..\..\TMP_List.txt"))
                 {
                     for (int i = 0; i < videos.Count; i++)
-                        writer.WriteLine($"{videos[i].channel_name} - {videos[i].video_title}:\n{videos[i].url}");
+                    {
+                        writer.WriteLine($"{videos[i].Channel_name} - {videos[i].Video_title}:\n{videos[i].Url}");
+                    }
                 }
+
                 await Context.Channel.SendFileAsync(@$"..\..\..\TMP_List.txt", "**Generated pastebin:**");
             }
             else
-                await this.ReplyAsync("List is empty");
+            {
+                await ReplyAsync("List is empty");
+            }
         }
 
 
@@ -157,18 +148,20 @@
             {
                 for (int i = 0; i < videos.Count; i++)
                 {
-                    await this.ReplyAsync($"**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n<{videos[i].url}>");
+                    await ReplyAsync($"**{i + 1}:**\t{videos[i].Video_title}\t |\t {videos[i].Channel_name} ({videos[i].Upload_date})\n<{videos[i].Url}>");
                 }
             }
             else
-                await this.ReplyAsync("List is empty");
+            {
+                await ReplyAsync("List is empty");
+            }
         }
 
 
         [Command("help"), Alias("?", "asist"), Summary("Displays all commands")]
         public async Task HelpAsync()
         {
-            await this.Context.Channel.TriggerTypingAsync();
+            await Context.Channel.TriggerTypingAsync();
 
             var embed = new EmbedBuilder()
                 .WithTitle("TMP Bot 2 Help")
@@ -189,7 +182,7 @@
                 .WithFooter("Developed by KK")
                 .WithUrl("https://github.com/KK-mp4/TMP-Bot-2")
                 .Build();
-            await this.ReplyAsync(embed: embed);
+            await ReplyAsync(embed: embed);
         }
 
 
@@ -200,14 +193,15 @@
             {
                 writer.WriteLine("");
             }
-            await this.ReplyAsync("TMP List have been cleared.");
+
+            await ReplyAsync("TMP List have been cleared.");
         }
 
 
         [Command("thumbnail"), RequireOwner, Summary("Generates thumbnail for the episode")]
         public async Task ThumbnailAsync()
         {
-            await this.ReplyAsync("Thumbnail for episode: **16**");
+            await ReplyAsync("Thumbnail for episode: **16**");
         }
 
 
@@ -215,7 +209,7 @@
         public async Task RemoveAsync()
         {
             //cleaning url
-            string message = this.Context.Message.Content;
+            string message = Context.Message.Content;
             string[] words = message.Split(' ');
             words[2] = words[2].Replace("<", string.Empty);
             words[2] = words[2].Replace(">", string.Empty);
@@ -231,19 +225,23 @@
             {
                 List<Video> vidList = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(path));
 
-                if (vidList == null) return;
+                if (vidList == null)
+                {
+                    return;
+                }
 
                 for (int i = 0; i < vidList.Count; i++)
                 {
-                    if (words[2] == vidList[i].url)
+                    if (words[2] == vidList[i].Url)
                     {
                         vidList.RemoveAt(i);
-                        await this.ReplyAsync($"Video with URL: **{words[2]}** got removed");
+                        await ReplyAsync($"Video with URL: **{words[2]}** got removed");
                         File.WriteAllText(path, JsonConvert.SerializeObject(vidList, Formatting.Indented));
                         return;
                     }
                 }
-                await this.ReplyAsync($"No video was removed");
+
+                await ReplyAsync($"No video was removed");
             }
         }
 
@@ -256,9 +254,12 @@
             {
                 List<Video> vidList = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(path));
 
-                if (vidList == null) return;
+                if (vidList == null)
+                {
+                    return;
+                }
 
-                await this.ReplyAsync($"The list currently has **{vidList.Count}** videos stored");
+                await ReplyAsync($"The list currently has **{vidList.Count}** videos stored");
             }
         }
     }

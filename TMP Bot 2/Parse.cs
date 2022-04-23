@@ -4,7 +4,7 @@
     using AngleSharp;
     using AngleSharp.Dom;
 
-    class Parse
+    internal class Parse
     {
         public static async Task<string> TitleAsync(string url)
         {
@@ -19,7 +19,7 @@
             }
             catch
             {
-                return "Null";
+                return "NullError";
             }
         }
 
@@ -41,7 +41,7 @@
             }
             catch
             {
-                return "Null";
+                return "NullError";
             }
         }
 
@@ -59,7 +59,7 @@
             }
             catch
             {
-                return "Null";
+                return "NullError";
             }
         }
 
@@ -76,7 +76,7 @@
             }
             catch
             {
-                return "Null";
+                return "NullError";
             }
         }
     }
