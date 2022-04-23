@@ -17,6 +17,11 @@ Stores video url, author name, video title, video date and additional comment in
 | **!!tmp remove [video url]** | Remove video from the list |
 | **!!tmp thumbnail [episode number]** | Generate thumbnail for the episode |
 
-![image](https://user-images.githubusercontent.com/103208695/164895647-fa611dc6-0b93-4349-b11b-4d3ac72ac251.png)
+## Dependencies
+**AngleSharp** by AngleSharp<br >
+**Discord.Net** by Discord.Net Contributors<br >
+**Newtonsoft.Json** by James Newton-King<br >
+**System.Drawing.Common** by Microsoft<br >
 
-![image](https://user-images.githubusercontent.com/103208695/164895661-fa3a0a8d-fdef-40d9-90da-73097a5f59b6.png)
+## License
+This program is licensed under the MIT License. Please read the License file to know about the usage terms and conditions.
