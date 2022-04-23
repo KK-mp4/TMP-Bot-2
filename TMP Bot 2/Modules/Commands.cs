@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -47,6 +48,7 @@
         {
             await this.Context.Channel.TriggerTypingAsync();
 
+            //cleaning url
             string message = this.Context.Message.Content;
             string[] words = message.Split(' ');
             words[2] = words[2].Replace("<", string.Empty);
@@ -64,6 +66,19 @@
 
             await this.ReplyAsync($"**Added video:** {title}\t|\t{username} ({date})");
 
+            //downloading thumbnail
+            string thumbnail = await Parse.ThumbnailAsync(words[2]);
+            System.Net.WebRequest request = System.Net.WebRequest.Create(thumbnail);
+            System.Net.WebResponse response = request.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            Bitmap img = new Bitmap(responseStream);
+            Bitmap imgResized = new Bitmap(img, 188, 100);
+            img.Dispose();
+            string filename = words[2].Replace("https://b23.tv/", string.Empty);
+            imgResized.Save(@$"..\..\..\Thumbnails\{filename}.jpg");
+            imgResized.Dispose();
+
+            //saving to json
             string path = @"..\..\..\TMP_List.json";
             if (File.Exists(path))
             {
@@ -102,8 +117,8 @@
                 await this.ReplyAsync("**Videos:**\n");
                 for (int i = 0; i < videos.Count; i++)
                 {
-                    string thumbnail = await Parse.ThumbnailAsync(videos[i].url);
-                    await this.ReplyAsync($"————————————————————————\n**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n{videos[i].comment}\n<{videos[i].url}>\n{thumbnail}");
+                    string filename = videos[i].url.Replace("https://b23.tv/", string.Empty);
+                    await Context.Channel.SendFileAsync(@$"..\..\..\Thumbnails\{filename}.jpg", $"————————————————————————\n**{i + 1}:**\t{videos[i].video_title}\t |\t {videos[i].channel_name} ({videos[i].upload_date})\n{videos[i].comment}\n<{videos[i].url}>");
                 }
             }
         }
@@ -145,7 +160,7 @@
 
             var embed = new EmbedBuilder()
                 .WithTitle("TMP Bot 2 Help")
-                .WithColor(new Color(255, 102, 94))
+                .WithColor(new Discord.Color(255, 102, 94))
                 .AddField("Prefix: ", "!!tmp")
                 .AddField("Commands", "\n" +
                 "**add** Adds new video to the list\n" +
