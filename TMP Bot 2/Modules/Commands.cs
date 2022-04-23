@@ -1,15 +1,11 @@
 ﻿namespace TMP_Bot_2.Modules
 {
-    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.IO;
-    using System.Linq;
-    using System.Reflection;
     using System.Threading.Tasks;
     using Discord;
     using Discord.Commands;
-    using Discord.WebSocket;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -127,14 +123,24 @@
         [Command("pastebin"), Summary("Generates pastebin for TMP description")]
         public async Task PastebinAsync()
         {
-            await this.ReplyAsync("**Generated pastebin: **\n**[Not implemented]**");
+            List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
+
+            if (videos != null)
+            { 
+                using (StreamWriter writer = new StreamWriter(@"..\..\..\TMP_List.txt"))
+                {
+                    for (int i = 0; i < videos.Count; i++)
+                        writer.WriteLine($"{videos[i].channel_name} - {videos[i].video_title}:\n{videos[i].url}");
+                }
+                await Context.Channel.SendFileAsync(@$"..\..\..\TMP_List.txt", "**Generated pastebin:**");
+            }
         }
 
 
         [Command("data"), Summary("Outputs full video data")]
         public async Task SataAsync()
         {
-            await this.ReplyAsync("Current stored data:\n**[Not implemented]**");
+            await Context.Channel.SendFileAsync(@$"..\..\..\TMP_List.json", "Current stored data:");
         }
 
 
