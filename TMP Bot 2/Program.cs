@@ -64,7 +64,7 @@
             }
 
             int argPos = 0;
-            if (message.HasStringPrefix("!!tmp2 ", ref argPos))
+            if (message.HasStringPrefix("!!tmp ", ref argPos))
             {
                 var result = await this.commands.ExecuteAsync(context, argPos, this.services);
                 if (!result.IsSuccess)
