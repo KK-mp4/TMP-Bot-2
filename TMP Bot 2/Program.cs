@@ -17,6 +17,8 @@
         private CommandService _commands;
         private IServiceProvider _services;
 
+        private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
+
         public async Task RunBotAsync()
         {
             _client = new DiscordSocketClient();
@@ -71,8 +73,5 @@
                 }
             }
         }
-
-        private static void Main(string[] args) => new Program().RunBotAsync().GetAwaiter().GetResult();
-
     }
 }

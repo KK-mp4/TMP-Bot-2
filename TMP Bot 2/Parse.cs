@@ -4,9 +4,77 @@
     using AngleSharp;
     using AngleSharp.Dom;
 
+    /// <summary>
+    /// Class that handles all the parsing.
+    /// </summary>
     internal class Parse
     {
-        public static async Task<string> TitleAsync(string url)
+        public static async Task<string> YTTitleAsync(string url)
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            using var context = BrowsingContext.New(config);
+            using var document = await context.OpenAsync(url);
+
+            try
+            {
+                string title = document.Title;
+                title = title.Replace(" - YouTube", string.Empty);
+                return title;
+            }
+            catch
+            {
+                return "Null";
+            }
+        }
+
+        public static async Task<string> YTDateAsync(string url)
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            using var context = BrowsingContext.New(config);
+            using var document = await context.OpenAsync(url);
+
+            try
+            {
+                var dateDoc = document.QuerySelector("#info-strings");        // //*[@id="info-strings"]/yt-formatted-string
+                string date = dateDoc.Text();
+                return date;
+            }
+            catch
+            {
+                return "Null";
+            }
+        }
+
+        public static async Task<string> YTUserAsync(string url)
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            using var context = BrowsingContext.New(config);
+            using var document = await context.OpenAsync(url);
+
+            try
+            {
+                var usernameDoc = document.QuerySelector("#text");     // //*[@id="text"]/a
+                string username = usernameDoc.Text().Trim();
+                return username;
+            }
+            catch
+            {
+                return "Null";
+            }
+        }
+
+        public static string YTThumbnail(string url)
+        {
+            // making url into https://img.youtube.com/vi/[videoID]/0.jpg
+            url = url.Replace("https://youtu.be/", string.Empty);
+            url += "/0.jpg";
+            string img_url = "https://img.youtube.com/vi/";
+            img_url += url;
+
+            return img_url;
+        }
+
+        public static async Task<string> BiliTitleAsync(string url)
         {
             var config = Configuration.Default.WithDefaultLoader();
             using var context = BrowsingContext.New(config);
@@ -19,11 +87,11 @@
             }
             catch
             {
-                return "NullError";
+                return "Null";
             }
         }
 
-        public static async Task<string> DateAsync(string url)
+        public static async Task<string> BiliDateAsync(string url)
         {
             var config = Configuration.Default.WithDefaultLoader();
             using var context = BrowsingContext.New(config);
@@ -41,11 +109,11 @@
             }
             catch
             {
-                return "NullError";
+                return "Null";
             }
         }
 
-        public static async Task<string> UserAsync(string url)
+        public static async Task<string> BiliUserAsync(string url)
         {
             var config = Configuration.Default.WithDefaultLoader();
             using var context = BrowsingContext.New(config);
@@ -59,11 +127,11 @@
             }
             catch
             {
-                return "NullError";
+                return "Null";
             }
         }
 
-        public static async Task<string> ThumbnailAsync(string url)
+        public static async Task<string> BiliThumbnailAsync(string url)
         {
             var config = Configuration.Default.WithDefaultLoader();
             using var context = BrowsingContext.New(config);
@@ -76,7 +144,7 @@
             }
             catch
             {
-                return "NullError";
+                return "Null";
             }
         }
     }
