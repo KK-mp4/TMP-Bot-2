@@ -14,7 +14,7 @@ Stores video url, author name, video title, video date and additional comment in
 | **!!tmp count** | Count amount of stored videos |
 | **!!tmp pastebin** | Generate text file for TMP description |
 | **!!tmp ping** | Check if bot is online |
-| **!!tmp remove [video url]** | Remove video from the list |
+| **!!tmp remove [video url] [optional comment]** | Remove video from the list |
 | **!!tmp thumbnail [episode number]** | Generate thumbnail for the episode |
 
 ## Dependencies
