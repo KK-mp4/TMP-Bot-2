@@ -1,5 +1,6 @@
 ﻿namespace TMP_Bot_2.Modules
 {
+    using System;
     using System.Collections.Generic;
     using System.Drawing;
     using System.IO;
@@ -148,7 +149,7 @@
         }
 
 
-        [Command("list"), Alias("array", "out"), Summary("Outputs full video list")]
+        [Command("list"), RequireOwner, Alias("array", "out"), Summary("Outputs full video list")]
         public async Task ListAsync()
         {
             List<Video> videos = JsonConvert.DeserializeObject<List<Video>>(File.ReadAllText(@"..\..\..\TMP_List.json"));
@@ -278,10 +279,17 @@
         }
 
 
-        [Command("thumbnail"), RequireOwner, Summary("Generates thumbnail for the episode")]
+        [Command("thumbnail", true), Summary("Generates thumbnail for the episode")]
         public async Task ThumbnailAsync()
         {
-            await ReplyAsync("Thumbnail for episode: **16**");
+            await Context.Channel.TriggerTypingAsync();
+            string message = Context.Message.Content;
+            string[] words = message.Split(' ');
+            string episodeNumber = words[2];
+
+            Bitmap thumbnail = Thumbnail.Generate(episodeNumber);
+            thumbnail.Save(@$"..\..\..\Thumbnails\Thumbnail {episodeNumber}.jpg");
+            await Context.Channel.SendFileAsync(@$"..\..\..\Thumbnails\Thumbnail {episodeNumber}.jpg", $"Thumbnail for episode: **{episodeNumber}**");
         }
 
 
@@ -326,7 +334,7 @@
         }
 
 
-        [Command("list count", true), RequireOwner, Summary("Counts amount of stored videos")]
+        [Command("list count"), Summary("Counts amount of stored videos")]
         public async Task CountAsync()
         {
             string path = @"..\..\..\TMP_List.json";
