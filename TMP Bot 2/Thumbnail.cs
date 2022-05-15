@@ -72,7 +72,15 @@
                         string filename = vidList[index].Url.Replace("https://b23.tv/", string.Empty);
                         filename = filename.Replace("https://youtu.be/", string.Empty);
 
-                        Bitmap imgSmall = new Bitmap(@$"..\..\..\Thumbnails\{ filename }.jpg");
+                        Bitmap imgSmall = null;
+                        try
+                        {
+                            imgSmall = new Bitmap(@$"..\..\..\Thumbnails\{ filename }.jpg");
+                        }
+                        catch
+                        {
+                            imgSmall = new Bitmap(188, 100);
+                        }
 
                         g.DrawImage(imgSmall, new Rectangle(smallResX * i, smallResY * j, smallResX + 1, smallResY + 1));
 

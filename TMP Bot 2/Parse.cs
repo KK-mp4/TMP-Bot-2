@@ -15,29 +15,16 @@
             using var context = BrowsingContext.New(config);
             using var document = await context.OpenAsync(url);
 
+            if (document == null)
+            {
+                return "Null";
+            }
+
             try
             {
                 string title = document.Title;
                 title = title.Replace(" - YouTube", string.Empty);
                 return title;
-            }
-            catch
-            {
-                return "Null";
-            }
-        }
-
-        public static async Task<string> YTDateAsync(string url)
-        {
-            var config = Configuration.Default.WithDefaultLoader();
-            using var context = BrowsingContext.New(config);
-            using var document = await context.OpenAsync(url);
-
-            try
-            {
-                var dateDoc = document.QuerySelector("#info-strings");        // //*[@id="info-strings"]/yt-formatted-string
-                string date = dateDoc.Text();
-                return date;
             }
             catch
             {
@@ -53,9 +40,26 @@
 
             try
             {
-                var usernameDoc = document.QuerySelector("#text");     // //*[@id="text"]/a
-                string username = usernameDoc.Text().Trim();
+                string username = document.QuerySelector("link[itemprop='name']").GetAttribute("content");
                 return username;
+            }
+            catch
+            {
+                return "Null";
+            }
+        }
+
+        public static async Task<string> YTDateAsync(string url)
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            using var context = BrowsingContext.New(config);
+            using var document = await context.OpenAsync(url);
+
+            try
+            {
+                string date = document.QuerySelector("meta[itemprop='uploadDate']").GetAttribute("content");
+                //DateTime time = DateTime.Parse(date);
+                return date;
             }
             catch
             {
@@ -80,10 +84,33 @@
             using var context = BrowsingContext.New(config);
             using var document = await context.OpenAsync(url);
 
+            if (document == null)
+            {
+                return "Null";
+            }
+
             try
             {
                 var title = document.Title;
                 return title;
+            }
+            catch
+            {
+                return "Null";
+            }
+        }
+
+        public static async Task<string> BiliUserAsync(string url)
+        {
+            var config = Configuration.Default.WithDefaultLoader();
+            using var context = BrowsingContext.New(config);
+            using var document = await context.OpenAsync(url);
+
+            try
+            {
+                var username = document.QuerySelector(".username");
+                string usernamestring = username.Text().Trim();
+                return usernamestring;
             }
             catch
             {
@@ -104,26 +131,8 @@
                 string date = date2.Text();
                 date = date.Remove(0, date.Length - 19);
                 date = date.Remove(date.Length - 9, 9);
-
+                //DateTime time = DateTime.Parse(date);
                 return date;
-            }
-            catch
-            {
-                return "Null";
-            }
-        }
-
-        public static async Task<string> BiliUserAsync(string url)
-        {
-            var config = Configuration.Default.WithDefaultLoader();
-            using var context = BrowsingContext.New(config);
-            using var document = await context.OpenAsync(url);
-
-            try
-            {
-                var username = document.QuerySelector(".username");
-                string usernamestring = username.Text().Trim();
-                return usernamestring;
             }
             catch
             {

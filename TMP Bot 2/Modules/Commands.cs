@@ -52,8 +52,14 @@
                     words[2] = words[2].Remove(queryPos, words[2].Length - queryPos);
                 }
 
-                username = await Parse.BiliUserAsync(words[2]);
                 title = await Parse.BiliTitleAsync(words[2]);
+                if (title == "Null")
+                {
+                    await ReplyAsync($"Invalid URL: **<{words[2]}>**");
+                    return;
+                }
+
+                username = await Parse.BiliUserAsync(words[2]);
                 date = await Parse.BiliDateAsync(words[2]);
             }
             else
@@ -65,8 +71,14 @@
                     words[2] = words[2].Remove(queryPos, words[2].Length - queryPos);
                 }
 
-                username = await Parse.YTUserAsync(words[2]);
                 title = await Parse.YTTitleAsync(words[2]);
+                if (title == "Null")
+                {
+                    await ReplyAsync($"Invalid URL: **<{words[2]}>**");
+                    return;
+                }
+
+                username = await Parse.YTUserAsync(words[2]);
                 date = await Parse.YTDateAsync(words[2]);
             }
 
